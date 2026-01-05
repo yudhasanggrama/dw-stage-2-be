@@ -19,9 +19,7 @@ export const detailOrder =  (req:Request, res:Response) => {
 
 
 export const calculateTotalPrice = (items: OrderItem[]) => {
-    // menjumlahkan semua subtotal
     return items.reduce((total, item) => {
-        // mencari harga produk berdasarkan id
         const product = products.find(
         (p) => p.id === item.productId
         );
@@ -36,7 +34,6 @@ export const calculateTotalPrice = (items: OrderItem[]) => {
 
 export const createOrder = (req:Request, res:Response) => {
     const { items } = req.body
-    //hitung total price menggunakan calculateTotalPrice 
     const totalPrice = calculateTotalPrice(items);
 
     const newOrder: Order = {
@@ -53,20 +50,13 @@ export const createOrder = (req:Request, res:Response) => {
 export const editOrder =(req:Request, res:Response) => {
 
     const { id } = req.params
-    // cari index order di array
     const dataIndex = orders.findIndex(order => order.id === parseInt(id))
 
-    // validasi
     if (dataIndex > -1) {
-        // mengambil items baru dari request body
         const newItems = req.body.items;
-        // memanggil fungsi calculateTotalPrice
         const totalPrice = calculateTotalPrice(newItems);
-        // update item lama dengan newItems
         orders[dataIndex].items = newItems;
-        // update totalprice di order yang sama, totalprice di hitung dari newItems yang baru
         orders[dataIndex].totalPrice = totalPrice;
-        // order yang sudah diperbarui
         res.status(200).json(orders[dataIndex]);
     } else {
         res.status(404).send('Item not found');
