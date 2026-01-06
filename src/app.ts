@@ -1,14 +1,14 @@
+import "dotenv/config";
 import express from "express";
-import router from "./routes/post-route"
+import router from "./routes/post_user-route"
 
 const app = express()
-const PORT = 4000;
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use("/api/v1", router)
 
-app.listen(PORT, ()=> {
+app.listen(process.env.PORT, ()=> {
     console.log("server is running");
     
 })
