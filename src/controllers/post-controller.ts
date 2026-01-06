@@ -51,7 +51,7 @@ export const editPosts = async (req:Request, res:Response)=> {
                     ...(content && {content})
                 }
         })
-        res.status(201).json({message: "Post successfully updated", data:posts})
+        res.status(200).json({message: "Post successfully updated", data:posts})
     } catch (error) {
         res.status(404).json({error:"Failed to update post"})
     }
@@ -61,7 +61,7 @@ export const deletePosts = async (req:Request, res:Response)=> {
     try {
         const id = parseInt(req.params.id)
         const posts = await prisma.post.delete({where:{id}})
-        res.status(201).json({message: "Product deleted", data:posts})
+        res.status(200).json({message: "Product deleted", data:posts})
     } catch (error) {
         res.status(404).json({error:"Failed to delete post"})
     }
