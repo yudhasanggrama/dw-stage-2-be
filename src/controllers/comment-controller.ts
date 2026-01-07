@@ -17,45 +17,26 @@ export const getComments = async (req:Request, res:Response) => {
     }
 }
 
-export const commentSummary = async (req:Request, res:Response) => {
+export const commentSummary = async (req: Request, res: Response) => {
     try {
         const commentsSummary = await prisma.comment.groupBy({
         by: ['postId'],
         _count: { id: true },
-        orderBy: { postId: 'asc' },
-        });
-
-        const postIds = commentsSummary.map(item => item.postId);
-
-        const posts = await prisma.post.findMany({
-            where: {
-                id: { in: postIds },
+        orderBy: {
+            _count: {
+            id: 'desc',
             },
-            select: {
-                id: true,
-                title: true,
-            },
+        },
         });
-
-        // Buat dictionary {postId: title} supaya mudah lookup judul post berdasarkan postId
-        const postTitleMap = posts.reduce<Record<number, string>>((acc, post) => {
-        acc[post.id] = post.title;
-        return acc;
-        }, {});
-        
-        // Gabungkan jumlah komentar per post dengan judul post menggunakan postTitleMap
-        // Jika judul post tidak ditemukan, gunakan 'Unknown'
         const result = commentsSummary.map(item => ({
-        postId: item.postId,
-        title: postTitleMap[item.postId] || 'Unknown',
-        commentsCount: item._count.id,
-        }));
-
-        res.status(200).json({message:"All Comments has found", data: result})
+            postId: item.postId,
+            commentsCount: item._count.id,
+        }))
+        res.status(200).json({message: "All Comments have been found", data: result });
     } catch (error) {
-        res.status(500).json({error:"Failed to fetch data"})
+        res.status(500).json({ error: "Failed to fetch data" });
     }
-}
+};
 
 
 
