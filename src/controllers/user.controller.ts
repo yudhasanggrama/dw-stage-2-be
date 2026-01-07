@@ -1,4 +1,4 @@
-import { prisma } from "../connection/client"
+import { prisma } from "../prisma/client"
 import { Request, Response } from "express";
 
 export const getUsers = async(req:Request, res:Response) => {
@@ -28,7 +28,7 @@ export const createUser = async(req:Request, res:Response) => {
     try {
         const {name} = req.body
         const user = await prisma.user.create({
-            data: {name}
+            data: name
         })
         res.status(201).json({message: "User successfully created", data:user})
     } catch (error) {

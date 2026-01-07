@@ -1,14 +1,62 @@
 import { Request, Response } from "express";
-import { prisma } from "../connection/client";
+import { prisma } from "../prisma/client";
 
 export const getPosts = async (req:Request, res:Response)=> {
+    const {sortBy, order ,authorId, limit, offset} = req.query
+
+    const filters:any = {}
+
+    if(authorId) {
+        filters.authorId = Number(authorId)
+    }
+
     try {
-        const posts = await prisma.post.findMany({ include: { author: true } })
+        const posts = await prisma.post.findMany({
+            where:filters,
+            orderBy : {
+                [sortBy as string]: order as "asc" | "desc",
+            },
+            take: Number(limit) || undefined,
+            skip: Number(offset) || undefined
+        })
         res.status(200).json({message: "All Posts found", data: posts})
     } catch (error) {
         res.status(500).json({error:"Failed to fetch data"})
     }
 }
+
+export const getSummary = async (req: Request, res: Response) => {
+    const { limit, offset, authorId } = req.query;
+
+    const filters:any = {}
+
+    if(authorId){
+        filters.authorId = Number(authorId);
+    }
+
+    try {
+        const posts = await prisma.post.findMany({
+        where: filters,
+        take: limit ? Number(limit) : undefined,
+        skip: offset ? Number(offset) : undefined,
+        include: {
+            _count: { select: { comments: true } }
+        }
+        });
+
+        const summary = posts.filter(post => post._count.comments > 10);
+
+        res.status(200).json({
+        message: "All Post with Comments more than 10 are found",
+        data: summary
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+    }
+
+
 
 export const detailPosts = async (req:Request, res:Response)=> {
     try {
