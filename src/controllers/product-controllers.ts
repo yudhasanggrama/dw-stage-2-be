@@ -1,10 +1,56 @@
-import { prisma } from "../connection/client";
+import { prisma } from "../prisma/client";
 import { Request, Response } from "express";
 
 export const getProducts = async(req:Request, res:Response) => {
+    const {
+        sortBy, 
+        order, 
+        price,
+        minPrice,
+        maxPrice,
+        minStock,
+        maxStock,
+        limit,
+        offset
+    } = req.query
+
+    const filters:any = {}
+
+    // min-max price
+    if (minPrice) {
+        filters.price =  {gte: parseFloat(minPrice as string)};
+    }
+    
+    if (maxPrice) {
+        filters.price = {
+            ...(filters.price || {}),
+            lte: parseFloat(maxPrice as string),
+        };
+    }
+    // min-max stock
+    if (minStock) {
+        filters.stock =  {gte: parseInt(minStock as string)}
+    }
+
+    if (maxStock) {
+        filters.stock = {
+            ...(filters.stock || {}),
+            lte: parseInt(maxStock as string),
+        };
+    }
+
     try {
-        const products =  await prisma.product.findMany()
-        res.status(200).json({message: "all products found", data: products})
+        const products =  await prisma.product.findMany({
+            where: filters,
+            orderBy: {
+                [sortBy as string]: order as "asc" | "desc"
+            },
+            take: Number(limit) || undefined,
+            skip: Number(offset) || undefined
+        })
+
+        const total = await prisma.product.count({where : filters})
+        res.status(200).json({message: "All products found", data: products,total})
     } catch (error) {
         res.status(500).json({error:"Failed to fetch data"})
     }
@@ -24,9 +70,9 @@ export const detailProducts = async(req:Request, res:Response) => {
 
 export const createProducts = async (req:Request, res:Response)=> {
     try {
-        const {name , price} = req.body
+        const {name , price, stock} = req.body
         const product = await prisma.product.create({
-            data:{name,price: parseFloat(price)}
+            data:{name,price: parseFloat(price), stock:parseInt(stock)}
         })
         res.status(201).json({message: "Product successfully created", data: product})
     } catch (error) {
