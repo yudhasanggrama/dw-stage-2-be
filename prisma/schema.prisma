@@ -9,27 +9,51 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
+  id    Int    @id @default(autoincrement())
+  name  String
   email String @unique
+
   orders Order[]
+}
+
+model Supplier {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  products Product[]
+  stocks   Stock[]
 }
 
 model Product {
-  id Int @id @default(autoincrement())
-  name String
-  price Float
-  stock Int
-  orders Order[]
+  id         Int    @id @default(autoincrement())
+  name       String
+  price      Float
+  supplierId Int
 
+  orders Order[]
+  stocks Stock[]
+
+  supplier Supplier @relation(fields: [supplierId], references: [id])
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-  userId Int
+  id        Int @id @default(autoincrement())
+  userId    Int
   productId Int
-  quantity Int
+  quantity  Int
 
-  user User @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
   product Product @relation(fields: [productId], references: [id])
+}
+
+model Stock {
+  id         Int @id @default(autoincrement())
+  productId  Int
+  supplierId Int
+  quantity   Int
+
+  product  Product  @relation(fields: [productId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@unique([productId, supplierId])
 }

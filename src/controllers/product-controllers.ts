@@ -8,8 +8,6 @@ export const getProducts = async(req:Request, res:Response) => {
         price,
         minPrice,
         maxPrice,
-        minStock,
-        maxStock,
         limit,
         offset
     } = req.query
@@ -27,18 +25,6 @@ export const getProducts = async(req:Request, res:Response) => {
             lte: parseFloat(maxPrice as string),
         };
     }
-    // min-max stock
-    if (minStock) {
-        filters.stock =  {gte: parseInt(minStock as string)}
-    }
-
-    if (maxStock) {
-        filters.stock = {
-            ...(filters.stock || {}),
-            lte: parseInt(maxStock as string),
-        };
-    }
-
     try {
         const products =  await prisma.product.findMany({
             where: filters,
@@ -56,6 +42,7 @@ export const getProducts = async(req:Request, res:Response) => {
     }
 }
 
+
 export const detailProducts = async(req:Request, res:Response) => {
     try {
         const id = parseInt(req.params.id);
@@ -70,9 +57,13 @@ export const detailProducts = async(req:Request, res:Response) => {
 
 export const createProducts = async (req:Request, res:Response)=> {
     try {
-        const {name , price, stock} = req.body
+        const {name , price, supplierId} = req.body
         const product = await prisma.product.create({
-            data:{name,price: parseFloat(price), stock:parseInt(stock)}
+            data: {
+                name,
+                price: Number(price),
+                supplierId: Number(supplierId),
+            },
         })
         res.status(201).json({message: "Product successfully created", data: product})
     } catch (error) {
