@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { registerUser } from "../services/auth";
 
 const prisma = new PrismaClient();
 
@@ -10,14 +11,11 @@ async function main() {
   await prisma.supplier.deleteMany();
   await prisma.user.deleteMany();   
 
-  // USERS
-  await prisma.user.createMany({
-    data: [
-      { name: "Alice", email: "alice@gmail.com" },
-      { name: "Ayu", email: "ayu@gmail.com" },
-      { name: "Andini", email: "andini@gmail.com" },
-    ],
-  });
+  //USERS
+  await registerUser("supplier1@mail.com", "123456", "supplier");
+  await registerUser("supplier2@mail.com", "123456", "supplier");
+  await registerUser("supplier3@mail.com", "123456", "supplier");
+  await registerUser("admin@mail.com", "123456", "admin");
 
   // SUPPLIERS
   await prisma.supplier.createMany({

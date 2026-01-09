@@ -1,5 +1,8 @@
 import { prisma } from "../prisma/client";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import { addProduct } from "../validation/auth";
+import AppError from "../utils/AppError";
+import { addProducts } from "../services/product";
 
 export const getProducts = async(req:Request, res:Response) => {
     const {
@@ -43,7 +46,7 @@ export const getProducts = async(req:Request, res:Response) => {
 }
 
 
-export const detailProducts = async(req:Request, res:Response) => {
+export const detailProducts = async(req:Request, res:Response, next:NextFunction) => {
     try {
         const id = parseInt(req.params.id);
         const products =  await prisma.product.findUnique({
@@ -51,23 +54,22 @@ export const detailProducts = async(req:Request, res:Response) => {
         })
         res.status(200).json({message: "Product has found", data:products})
     } catch (error) {
-        res.status(500).json({error:"Failed to fetch data"})
+        next(error)
     }
 }
 
-export const createProducts = async (req:Request, res:Response)=> {
+export const createProducts = async (req:Request, res:Response, next:NextFunction)=> {
     try {
-        const {name , price, supplierId} = req.body
-        const product = await prisma.product.create({
-            data: {
-                name,
-                price: Number(price),
-                supplierId: Number(supplierId),
-            },
-        })
+        const {error} = addProduct.validate(req.body);
+        if(error){
+            throw new AppError("Data product can't created", 400)
+        }
+        const {name, price, supplierId} = req.body;
+        const product = await addProducts(name,price,supplierId);
+
         res.status(201).json({message: "Product successfully created", data: product})
     } catch (error) {
-        res.status(404).json({error:"Failed to create product"})
+        next(error)
     }
 }
 
