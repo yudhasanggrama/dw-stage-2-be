@@ -1,6 +1,6 @@
 import "dotenv/config";
 import express from "express";
-import router from "./routes/transfer-points";
+import router from "./routes/auth-routes";
 import { globalErrorHandler } from "./middleware/error.middleware";
 
 const app = express()
