@@ -14,11 +14,17 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req:Request, file:Express.Multer.File, cb:multer.FileFilterCallback) => {
-  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-    cb(null,true)
-  } else {
-    cb(new Error("Type File not valid, Must be jpg or png"))
-  }
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg"
+    ];
+
+      if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Invalid file type. Only JPG, JPEG, PNG allowed"));
+    }
 }
 
 const upload = multer({
