@@ -16,4 +16,4 @@ export const addProduct = Joi.object({
     name: Joi.string().min(3).required(),
     price: Joi.number().min(0).required(),
     supplierId: Joi.number().required()
-})
+}).unknown(true);

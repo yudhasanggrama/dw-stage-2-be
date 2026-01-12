@@ -64,8 +64,13 @@ export const createProducts = async (req:Request, res:Response, next:NextFunctio
         if(error){
             throw new AppError("Data product can't created", 400)
         }
+        const filePath = req.file? req.file.path : null
         const {name, price, supplierId} = req.body;
-        const product = await addProducts(name,price,supplierId);
+        const product = await addProducts(name,
+            Number(price),
+            Number(supplierId), 
+            filePath
+        );
 
         res.status(201).json({message: "Product successfully created", data: product})
     } catch (error) {

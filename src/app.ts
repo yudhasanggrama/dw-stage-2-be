@@ -2,10 +2,13 @@ import "dotenv/config";
 import express from "express";
 import router from "./routes/product_order-routes";
 import { globalErrorHandler } from "./middleware/error.middleware";
+import cors from "cors";
 
 const app = express()
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
 
 app.use("/api/v1", router);
 

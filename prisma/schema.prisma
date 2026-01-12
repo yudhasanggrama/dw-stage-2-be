@@ -36,6 +36,7 @@ model Product {
   name       String
   price      Float
   supplierId Int
+  file String?
 
   orders Order[]
   stocks Stock[]

@@ -1,7 +1,7 @@
 import { prisma } from "../prisma/client";
 import AppError from "../utils/AppError";
 
-export async function addProducts(name:string, price:number, supplierId:number){
+export async function addProducts(name:string, price:number, supplierId:number, file:string|null){
     const supplier = await prisma.supplier.findUnique({
         where: { id: supplierId },
     });
@@ -15,6 +15,7 @@ export async function addProducts(name:string, price:number, supplierId:number){
             name,
             price,
             supplierId,
+            file
         },
     });
 
